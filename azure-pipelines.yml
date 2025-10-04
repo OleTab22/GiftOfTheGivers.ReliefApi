@@ -1,0 +1,34 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  projectDir: 'GiftOfTheGivers.ReliefApi'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+
+- script: dotnet restore $(projectDir)
+  displayName: 'Restore'
+
+- script: dotnet build $(projectDir) -c $(buildConfiguration) --no-restore
+  displayName: 'Build'
+
+# (Optional tests) add a test project and uncomment:
+# - script: dotnet test tests --no-build -c $(buildConfiguration)
+#   displayName: 'Test'
+
+- script: dotnet publish $(projectDir) -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/publish
+  displayName: 'Publish'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/publish'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
