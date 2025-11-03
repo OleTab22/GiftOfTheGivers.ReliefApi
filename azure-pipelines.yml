@@ -26,8 +26,9 @@ variables:
   projectName: 'GiftOfTheGivers.ReliefApi'
   testProject: 'Tests/GiftOfTheGivers.ReliefApi.Tests.csproj'
   dotnetSdkVersion: '8.x'
-  azureSubscription: 'YourAzureServiceConnection' # Update with your service connection name
-  webAppName: 'giftofthegivers-reliefapi' # Update with your Azure Web App name
+  azureSubscription: 'Azure-GOTG-Connection' # Service connection to Azure
+  webAppName: 'giftofthegivers-reliefapp' # Your Azure App Service name
+  resourceGroupName: 'rg-gotg-reliefapp-01' # Your resource group
 
 stages:
 - stage: Build
