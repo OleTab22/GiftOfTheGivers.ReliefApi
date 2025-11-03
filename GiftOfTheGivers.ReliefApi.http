@@ -1,0 +1,6 @@
+@GiftOfTheGivers.ReliefApi_HostAddress = http://localhost:5268
+
+GET {{GiftOfTheGivers.ReliefApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

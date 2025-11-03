@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.5">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Gift of the Givers Relief API - Stress Test" enabled="true">
+      <stringProp name="TestPlan.comments">Stress testing with increasing load up to 500 concurrent users</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="BASE_URL" elementType="Argument">
+            <stringProp name="Argument.name">BASE_URL</stringProp>
+            <stringProp name="Argument.value">http://localhost:5268</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+    </TestPlan>
+    <hashTree>
+      <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="Stress Test - Gradual Load Increase" enabled="true">
+        <collectionProp name="ultimatethreadgroupdata">
+          <collectionProp name="stage1">
+            <stringProp name="threads">50</stringProp>
+            <stringProp name="initial_delay">0</stringProp>
+            <stringProp name="startup_time">30</stringProp>
+            <stringProp name="hold_load">60</stringProp>
+            <stringProp name="shutdown_time">10</stringProp>
+          </collectionProp>
+          <collectionProp name="stage2">
+            <stringProp name="threads">150</stringProp>
+            <stringProp name="initial_delay">100</stringProp>
+            <stringProp name="startup_time">30</stringProp>
+            <stringProp name="hold_load">60</stringProp>
+            <stringProp name="shutdown_time">10</stringProp>
+          </collectionProp>
+          <collectionProp name="stage3">
+            <stringProp name="threads">300</stringProp>
+            <stringProp name="initial_delay">200</stringProp>
+            <stringProp name="startup_time">30</stringProp>
+            <stringProp name="hold_load">60</stringProp>
+            <stringProp name="shutdown_time">10</stringProp>
+          </collectionProp>
+          <collectionProp name="stage4">
+            <stringProp name="threads">500</stringProp>
+            <stringProp name="initial_delay">300</stringProp>
+            <stringProp name="startup_time">30</stringProp>
+            <stringProp name="hold_load">120</stringProp>
+            <stringProp name="shutdown_time">20</stringProp>
+          </collectionProp>
+        </collectionProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControllerGui" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">-1</intProp>
+        </elementProp>
+      </kg.apc.jmeter.threads.UltimateThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Incident" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"type":"Stress Test Incident ${__threadNum}_${__time()}","severity":"High","latitude":-33.9249,"longitude":18.4241,"needs":"Testing","status":"Open"}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/incidents</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">Content-Type</stringProp>
+                <stringProp name="Header.value">application/json</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get All Incidents" enabled="true">
+          <stringProp name="HTTPSampler.domain">${BASE_URL}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/incidents</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Export CSV" enabled="true">
+          <stringProp name="HTTPSampler.domain">${BASE_URL}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/incidents/export</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+      </hashTree>
+      <ResultCollector guiclass="StatGraphVisualizer" testclass="ResultCollector" testname="Aggregate Graph" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+          </value>
+        </objProp>
+        <stringProp name="filename">LoadTests/Results/stress_test_results.jtl</stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
+
+

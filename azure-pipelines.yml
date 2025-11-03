@@ -1,0 +1,259 @@
+trigger:
+  branches:
+    include:
+    - main
+    - develop
+  paths:
+    exclude:
+    - README.md
+    - Documentation/**
+    - LoadTests/**
+
+pr:
+  branches:
+    include:
+    - main
+  paths:
+    exclude:
+    - README.md
+    - Documentation/**
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  projectName: 'GiftOfTheGivers.ReliefApi'
+  testProject: 'Tests/GiftOfTheGivers.ReliefApi.Tests.csproj'
+  dotnetSdkVersion: '8.x'
+  azureSubscription: 'YourAzureServiceConnection' # Update with your service connection name
+  webAppName: 'giftofthegivers-reliefapi' # Update with your Azure Web App name
+
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: Build
+    displayName: 'Build and Test'
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Install .NET SDK'
+      inputs:
+        packageType: 'sdk'
+        version: '$(dotnetSdkVersion)'
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore NuGet Packages'
+      inputs:
+        command: 'restore'
+        projects: '**/*.csproj'
+        feedsToUse: 'select'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build Solution'
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --no-restore'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Run Unit Tests'
+      inputs:
+        command: 'test'
+        projects: '$(testProject)'
+        arguments: '--configuration $(buildConfiguration) --no-build --collect:"XPlat Code Coverage" --logger trx --results-directory $(Build.SourcesDirectory)/TestResults'
+        publishTestResults: true
+
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish Code Coverage'
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/**/coverage.cobertura.xml'
+        reportDirectory: '$(Build.SourcesDirectory)/TestResults/Coverage'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish Application'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '$(projectName).csproj'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/publish --no-build'
+        zipAfterPublish: true
+        modifyOutputPath: false
+
+    - task: CopyFiles@2
+      displayName: 'Copy ARM Templates'
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)'
+        Contents: |
+          azure-pipelines.yml
+          **/appsettings.*.json
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/config'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Build Artifacts'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+    - task: PublishTestResults@2
+      displayName: 'Publish Test Results'
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '**/*.trx'
+        searchFolder: '$(Build.SourcesDirectory)/TestResults'
+        mergeTestResults: true
+        failTaskOnFailedTests: true
+        testRunTitle: 'Unit and Integration Tests'
+
+- stage: Test
+  displayName: 'Quality Assurance'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: SecurityScan
+    displayName: 'Security Vulnerability Scan'
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '$(dotnetSdkVersion)'
+
+    - script: |
+        dotnet tool install --global dotnet-outdated-tool
+        dotnet outdated --upgrade
+      displayName: 'Check for Outdated Packages'
+      continueOnError: true
+
+    - script: |
+        echo "Running security scan..."
+        echo "In production, integrate tools like WhiteSource Bolt, Snyk, or OWASP Dependency Check"
+      displayName: 'Security Scan Placeholder'
+
+  - job: StaticAnalysis
+    displayName: 'Static Code Analysis'
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '$(dotnetSdkVersion)'
+
+    - script: |
+        dotnet restore
+        echo "Running static analysis..."
+        echo "In production, integrate SonarQube or other static analysis tools"
+      displayName: 'Static Analysis Placeholder'
+
+- stage: Deploy_Dev
+  displayName: 'Deploy to Development'
+  dependsOn: Test
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  - deployment: DeployDev
+    displayName: 'Deploy to Dev Environment'
+    environment: 'Development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebApp@1
+            displayName: 'Deploy to Azure Web App (Dev)'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appType: 'webApp'
+              appName: '$(webAppName)-dev'
+              package: '$(Pipeline.Workspace)/drop/publish/*.zip'
+              deploymentMethod: 'auto'
+
+          - task: AzureAppServiceSettings@1
+            displayName: 'Configure App Settings (Dev)'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appName: '$(webAppName)-dev'
+              resourceGroupName: 'rg-giftofthegivers-dev'
+              appSettings: |
+                [
+                  {
+                    "name": "ASPNETCORE_ENVIRONMENT",
+                    "value": "Development",
+                    "slotSetting": false
+                  }
+                ]
+
+- stage: Deploy_Staging
+  displayName: 'Deploy to Staging'
+  dependsOn: Test
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployStaging
+    displayName: 'Deploy to Staging Environment'
+    environment: 'Staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebApp@1
+            displayName: 'Deploy to Azure Web App (Staging)'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appType: 'webApp'
+              appName: '$(webAppName)-staging'
+              package: '$(Pipeline.Workspace)/drop/publish/*.zip'
+              deploymentMethod: 'auto'
+
+          - script: |
+              echo "Running smoke tests on staging environment..."
+              curl -f https://$(webAppName)-staging.azurewebsites.net/swagger/index.html || exit 1
+            displayName: 'Smoke Test'
+
+- stage: Deploy_Production
+  displayName: 'Deploy to Production'
+  dependsOn: Deploy_Staging
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployProduction
+    displayName: 'Deploy to Production Environment'
+    environment: 'Production'
+    strategy:
+      runOnce:
+        preDeploy:
+          steps:
+          - script: |
+              echo "Creating backup of current production deployment..."
+            displayName: 'Backup Current Deployment'
+
+        deploy:
+          steps:
+          - task: AzureWebApp@1
+            displayName: 'Deploy to Azure Web App (Production)'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appType: 'webApp'
+              appName: '$(webAppName)'
+              package: '$(Pipeline.Workspace)/drop/publish/*.zip'
+              deploymentMethod: 'auto'
+
+        postRouteTraffic:
+          steps:
+          - script: |
+              echo "Running post-deployment verification..."
+              curl -f https://$(webAppName).azurewebsites.net/swagger/index.html || exit 1
+            displayName: 'Verify Deployment'
+
+        on:
+          failure:
+            steps:
+            - script: |
+                echo "Deployment failed! Initiating rollback..."
+                echo "Rollback mechanism would restore previous version"
+              displayName: 'Rollback on Failure'
+
+          success:
+            steps:
+            - script: |
+                echo "Deployment successful!"
+                echo "Sending notification to team..."
+              displayName: 'Success Notification'

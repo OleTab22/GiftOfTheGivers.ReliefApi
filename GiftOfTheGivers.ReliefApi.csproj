@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  
+  <!-- Exclude test sources from the main web project -->
+  <ItemGroup>
+    <Compile Remove="Tests\**\*.cs" />
+    <None Remove="Tests\**\*" />
+    <EmbeddedResource Remove="Tests\**\*" />
+    <Content Remove="Tests\**\*" />
+  </ItemGroup>
+  
+  <!-- Prevent copying test project output files -->
+  <PropertyGroup>
+    <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+  </PropertyGroup>
+  
+  <!-- Explicitly prevent any copying from Tests folder -->
+  <Target Name="ExcludeTestsFromCopy" BeforeTargets="GetCopyToOutputDirectoryItems">
+    <ItemGroup>
+      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="$([System.String]::Copy('%(FullPath)').Contains('Tests\'))" />
+      <_SourceItemsToCopyToOutputDirectory Remove="@(_SourceItemsToCopyToOutputDirectory)" Condition="$([System.String]::Copy('%(FullPath)').Contains('Tests\'))" />
+    </ItemGroup>
+  </Target>
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+</Project>
