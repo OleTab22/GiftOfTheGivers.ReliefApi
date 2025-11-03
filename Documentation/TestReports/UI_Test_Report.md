@@ -630,33 +630,9 @@ dotnet test Tests/GiftOfTheGivers.ReliefApi.Tests.csproj --filter "FullyQualifie
 | Error Handling | 6 | 6 | ~2s |
 | Workflows | 2 | 2 | ~3s |
 
----
+--
 
-## 11. Screenshots Required
-
-The following screenshots should be captured for the submission:
-
-1. **Swagger UI Homepage** (`Screenshots/17_Swagger_UI.png`)
-   - Full Swagger interface
-   - All endpoints visible
-
-2. **Successful API Call** (`Screenshots/18_Successful_API_Call.png`)
-   - POST /api/auth/register with 200 OK response
-   - Response body visible
-
-3. **Authorization in Action** (`Screenshots/19_Authorization.png`)
-   - Authorize button clicked
-   - Bearer token entered
-   - Lock icons showing unlocked
-
-4. **CSV Export** (`Screenshots/20_CSV_Export.png`)
-   - GET /api/incidents/export executed
-   - CSV file download
-   - CSV opened in Excel showing data
-
----
-
-## 12. Cross-Browser Compatibility
+## 11. Cross-Browser Compatibility
 
 ### Recommended Browsers for Manual Testing
 
@@ -676,7 +652,7 @@ The following screenshots should be captured for the submission:
 
 ---
 
-## 13. Accessibility Testing
+## 12. Accessibility Testing
 
 ### Keyboard Navigation
 ✅ **All interactive elements reachable via keyboard**  
@@ -691,7 +667,7 @@ The following screenshots should be captured for the submission:
 
 ---
 
-## 14. Mobile Responsiveness
+## 13. Mobile Responsiveness
 
 ### Mobile Browser Testing
 ✅ **Swagger UI readable on mobile screens**  
@@ -703,7 +679,7 @@ The following screenshots should be captured for the submission:
 
 ---
 
-## 15. Performance Testing (UI)
+## 14. Performance Testing (UI)
 
 ### Page Load Time
 ✅ **Swagger UI loads in < 3 seconds**  
@@ -717,7 +693,7 @@ The following screenshots should be captured for the submission:
 
 ---
 
-## 16. Findings and Observations
+## 15. Findings and Observations
 
 ### Positive Findings
 ✅ **All UI elements function correctly**  
@@ -735,7 +711,7 @@ The following screenshots should be captured for the submission:
 
 ---
 
-## 17. Recommendations
+## 16. Recommendations
 
 ### Immediate Actions
 1. ✅ **All functional UI tests passing** - No immediate fixes needed
@@ -750,7 +726,7 @@ The following screenshots should be captured for the submission:
 
 ---
 
-## 18. Conclusion
+## 17. Conclusion
 
 **Functional UI Testing Status:** ✅ **COMPLETE - ALL TESTS PASSING**
 

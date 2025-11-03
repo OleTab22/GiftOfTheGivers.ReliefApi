@@ -33,14 +33,6 @@ Raw coverage file: `TestResults/**/coverage.cobertura.xml`
 
 ---
 
-## Screenshots (to attach)
-- ![All unit tests passing](../Screenshots/01_Unit_Tests_Passing.png)
-- ![Unit tests details](../Screenshots/02_Unit_Tests_Details.png)
-- ![Coverage summary](../Screenshots/03_Code_Coverage_Summary.png)
-- ![Controller coverage](../Screenshots/04_Code_Coverage_Controllers.png)
-- ![Sample unit test code](../Screenshots/05_Sample_Test_Code.png)
-
----
 
 ## Notes & Observations
 - One analyzer warning (xUnit2002) flagged use of Assert.NotNull on value type in a unit test; non-blocking.
