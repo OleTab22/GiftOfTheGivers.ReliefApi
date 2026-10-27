@@ -1,226 +1,95 @@
-# Gift of the Givers Relief API
+# Disaster Relief Management API
 
-A comprehensive ASP.NET Core 8.0 Web API for managing disaster relief operations, including incident tracking, volunteer coordination, donation management, and assignment distribution.
+**An ASP.NET Core 8 REST API for incident response, volunteer coordination, donations, and assignments.**
 
-## 🔗 Repository Links
+This project models the backend workflows of a disaster-relief organisation. It demonstrates API design, authentication, Entity Framework Core, automated testing, and deployment-related documentation.
 
-- **GitHub**: [https://github.com/OleTab22/GiftOfTheGivers.ReliefApi](https://github.com/OleTab22/GiftOfTheGivers.ReliefApi.git)
-- **Azure DevOps**: [https://dev.azure.com/ST10104079/GiftOfTheGivers-ReliefApp](https://dev.azure.com/ST10104079/GiftOfTheGivers-ReliefApp/_git/GiftOfTheGivers-ReliefApp)
+It is an **independent educational software project inspired by humanitarian relief work** and is not presented as an official system operated by Gift of the Givers.
 
-## 📋 Features
+## Core capabilities
 
-- **Incident Management**: Track and manage disaster incidents with severity levels
-- **Volunteer Coordination**: Register and manage volunteers with their skills
-- **Donation Tracking**: Record and track donations from various sources
-- **Assignment System**: Assign volunteers to specific incidents and tasks
-- **User Authentication**: JWT-based secure authentication system
-- **Interactive API Documentation**: Swagger/OpenAPI integration
+| Module | What it manages |
+| --- | --- |
+| **Incidents** | Disaster incidents and severity information |
+| **Volunteers** | Volunteer records and skills |
+| **Donations** | Donation records |
+| **Assignments** | Assigning volunteers to relief incidents or tasks |
+| **Accounts** | User registration/login and JWT-based authentication |
+| **API discovery** | Interactive Swagger/OpenAPI interface |
 
-## 🛠️ Technology Stack
+## Technology stack
 
-- **Framework**: ASP.NET Core 8.0
-- **Authentication**: JWT (JSON Web Tokens)
-- **Database**: Entity Framework Core with In-Memory Database
-- **API Documentation**: Swagger/Swashbuckle
-- **Password Hashing**: BCrypt.Net
-- **Testing**: xUnit, Moq, Microsoft.AspNetCore.Mvc.Testing
+- **Runtime:** C#, .NET 8, ASP.NET Core Web API
+- **Data:** Entity Framework Core with its In-Memory provider
+- **Authentication:** JWT Bearer and BCrypt password hashing
+- **Documentation:** Swagger / Swashbuckle
+- **Testing:** xUnit, Moq, WebApplicationFactory, Coverlet
+- **Automation:** Azure Pipelines configuration and PowerShell load/stress-test scripts
 
-## 🧪 Comprehensive Testing Suite
+## Project structure
 
-This project includes extensive testing coverage across multiple testing types:
+| Path | Responsibility |
+| --- | --- |
+| [`Controllers/`](Controllers/) | API endpoints for incidents, volunteers, donations, assignments, and authentication |
+| [`Models/`](Models/) | Data and request models |
+| [`Data/`](Data/) | EF Core database context |
+| [`Services/`](Services/) | Application services |
+| [`Tests/`](Tests/) | Unit, integration, and UI-oriented test sources |
+| [`LoadTests/`](LoadTests/) | PowerShell load/stress testing |
+| [`Documentation/TestReports/`](Documentation/TestReports/) | Historical test and pipeline reports |
+| [`Screenshots/`](Screenshots/) | Captures from development and verification |
 
-### Unit Testing (✅ 100% Pass Rate)
-- **Coverage**: 31 unit tests
-- **Framework**: xUnit with Moq
-- **Tests**: Controllers, Services, Authentication, Data Access Layer
-- **Code Coverage**: Detailed reports in `TestResults/CoverageReport/`
+## Run locally
 
-### Integration Testing (✅ 100% Pass Rate)
-- **Coverage**: 23 integration tests
-- **Tests**: API endpoints, database interactions, cross-module communication
-- **Approach**: In-memory testing with WebApplicationFactory
+**Prerequisites:** .NET 8 SDK and Git. Visual Studio or VS Code is optional.
 
-### Load Testing (✅ Successfully Completed)
-- **Tool**: PowerShell automated load testing
-- **Metrics**: Response times, throughput, resource utilization
-- **Results**: Baseline performance established with 100 concurrent users
+1. Clone the repository and enter the actual repository directory:
 
-### Stress Testing (✅ Successfully Completed)
-- **Stages**: 50 → 150 → 300 → 500 concurrent users
-- **Analysis**: Bottleneck identification, breaking point estimation
-- **Results**: System capacity and degradation points identified
+   ```bash
+   git clone https://github.com/OleTab22/GiftOfTheGivers.ReliefApi.git
+   cd GiftOfTheGivers.ReliefApi
+   ```
 
-### UI Testing (✅ 23 Tests Pass)
-- **Coverage**: Swagger interface, API endpoints, navigation, error handling
-- **Framework**: Microsoft.AspNetCore.Mvc.Testing
+2. Restore, build, and start the API:
 
-### Usability Testing (✅ Completed)
-- **Participants**: Real user feedback sessions
-- **Focus**: Navigation, layout, accessibility, user experience
-- **Report**: Detailed findings with improvement recommendations
+   ```bash
+   dotnet restore GiftOfTheGivers.ReliefApi.csproj
+   dotnet build GiftOfTheGivers.ReliefApi.csproj
+   dotnet run --project GiftOfTheGivers.ReliefApi.csproj --launch-profile http
+   ```
 
-## 📊 Test Reports
+3. Open the Swagger interface at http://localhost:5268/swagger.
 
-Comprehensive test reports are available in the `Documentation/TestReports/` directory:
-- `Comprehensive_Test_Report.md` - Master report with all test results
-- `Unit_Test_Report.md` - Detailed unit test results
-- `Integration_Test_Report.md` - Integration test analysis
-- `Load_Test_Report.md` - Load testing metrics
-- `Stress_Test_Report.md` - Stress test analysis
-- `UI_Test_Report.md` - UI testing results
-- `Pipeline_Configuration_Report.md` - CI/CD pipeline documentation
+The default data store uses **EF Core In-Memory**: records are not persisted across restarts. This configuration is suitable for demonstrations and tests, not production data storage.
 
-## 🚀 Getting Started
+## Authentication
 
-### Prerequisites
-- .NET 8.0 SDK or later
-- Visual Studio 2022 or VS Code
-- Git
+The API provides account registration and login endpoints. Use the JWT returned at login as a **Bearer token in the Authorization header** for protected requests. Swagger includes a Bearer authentication control.
 
-### Installation
+The current repository contains development-oriented JWT settings and a query-string token fallback. Review and harden these before exposing the service publicly: use a secret store or environment configuration, validate expected issuers/audiences, avoid tokens in URLs, and configure a persistent database.
 
-1. Clone the repository:
+## Testing
+
+Run the dedicated test project:
+
 ```bash
-git clone https://github.com/OleTab22/GiftOfTheGivers.ReliefApi.git
-cd GiftOfTheGivers-ReliefApp
+dotnet test Tests/GiftOfTheGivers.ReliefApi.Tests.csproj
 ```
 
-2. Restore dependencies:
+Collect coverage (where supported by the test environment):
+
 ```bash
-dotnet restore
+dotnet test Tests/GiftOfTheGivers.ReliefApi.Tests.csproj --collect:"XPlat Code Coverage"
 ```
 
-3. Build the project:
-```bash
-dotnet build
-```
+The source includes unit tests for controllers and token services, integration tests using ASP.NET Core test hosting, and other testing resources. Reports in [`Documentation/TestReports/`](Documentation/TestReports/) document earlier test exercises; **their pass rates and performance measurements should not be treated as current without rerunning the tests**.
 
-4. Run the application:
-```bash
-dotnet run
-```
+PowerShell test scripts are available in [`LoadTests/`](LoadTests/). The [`azure-pipelines.yml`](azure-pipelines.yml) file describes pipeline automation; a configuration file alone is not proof of a successful deployment.
 
-The API will be available at `http://localhost:5268` or `https://localhost:7268`
+## Project status and limitations
 
-### Access Swagger UI
-Navigate to `http://localhost:5268/swagger` to access the interactive API documentation.
+This repository demonstrates backend implementation and testing practices. It currently uses an in-memory database and development authentication defaults, so production deployment would require security hardening, durable storage, monitored builds, and new verification of the tests and performance.
 
-## 🧪 Running Tests
+## Author and acknowledgement
 
-### Run All Tests
-```bash
-dotnet test
-```
-
-### Run Unit Tests Only
-```bash
-dotnet test --filter "FullyQualifiedName~UnitTests"
-```
-
-### Run Integration Tests Only
-```bash
-dotnet test --filter "FullyQualifiedName~IntegrationTests"
-```
-
-### Run with Code Coverage
-```bash
-dotnet test --collect:"XPlat Code Coverage"
-```
-
-### Generate Coverage Report
-```bash
-dotnet test --collect:"XPlat Code Coverage"
-reportgenerator -reports:**/coverage.cobertura.xml -targetdir:TestResults/CoverageReport -reporttypes:Html
-```
-
-### Run Load/Stress Tests
-```powershell
-# Quick load test
-PowerShell -ExecutionPolicy Bypass -File "LoadTests\QuickLoadTest.ps1"
-
-# Comprehensive stress test
-PowerShell -ExecutionPolicy Bypass -File "LoadTests\StressTest.ps1"
-```
-
-## 📁 Project Structure
-
-```
-GiftOfTheGivers-ReliefApp/
-├── Controllers/              # API Controllers
-├── Models/                   # Data Models
-├── Services/                 # Business Logic Services
-├── Data/                     # Database Context
-├── Swagger/                  # Swagger Configuration
-├── Tests/                    # Test Projects
-│   ├── UnitTests/           # Unit Tests
-│   ├── IntegrationTests/    # Integration Tests
-│   └── UITests/             # UI Tests
-├── LoadTests/               # Load & Stress Testing Scripts
-├── Documentation/           # Project Documentation
-│   ├── TestReports/        # Test Reports
-│   └── Usability_Testing_Report.md
-├── azure-pipelines.yml      # CI/CD Pipeline Configuration
-└── README.md               # This file
-```
-
-## 🔐 Authentication
-
-The API uses JWT (JSON Web Token) authentication. To access protected endpoints:
-
-1. Register a new user via `/api/auth/register`
-2. Login via `/api/auth/login` to receive a JWT token
-3. Include the token in Swagger UI or as a query parameter: `?token=YOUR_TOKEN`
-
-## 🚀 CI/CD Pipeline
-
-The project includes a comprehensive Azure DevOps CI/CD pipeline with:
-- **Build Stage**: Restore, build, and compile
-- **Test Stage**: Unit tests, integration tests with code coverage
-- **Security Scan**: Dependency and security analysis
-- **Multi-Environment Deployment**: Dev, Staging, Production
-- **Automated Testing**: Post-deployment verification
-- **Rollback Mechanisms**: Automatic rollback on failure
-
-View the pipeline configuration in `azure-pipelines.yml`
-
-## 📈 Performance Metrics
-
-- **Unit Test Coverage**: High coverage across all controllers and services
-- **Integration Test Success Rate**: 100%
-- **API Response Time (Baseline)**: Average < 50ms
-- **Load Capacity**: Successfully handles 100+ concurrent users
-- **System Breaking Point**: Identified at ~500 concurrent users
-
-## 📖 Documentation
-
-- **API Documentation**: Available via Swagger UI at `/swagger`
-- **Test Reports**: `Documentation/TestReports/`
-- **Usability Report**: `Documentation/Usability_Testing_Report.md`
-- **Pipeline Guide**: `Documentation/TestReports/Pipeline_Configuration_Report.md`
-
-## 🤝 Contributing
-
-This project was developed as part of a POE (Portfolio of Evidence) assignment demonstrating:
-- RESTful API development
-- Comprehensive testing strategies
-- Load and stress testing
-- CI/CD pipeline implementation
-- Azure cloud deployment
-
-## 👨‍💻 Author
-
-**Student ID**: ST10104079
-
-## 📝 License
-
-This project is developed for educational purposes as part of a software development course.
-
-## 🙏 Acknowledgments
-
-- Gift of the Givers Foundation for the project inspiration
-- Course instructors and teaching staff
-- Testing frameworks and tools communities
-
----
-
-**Note**: This is an educational project demonstrating comprehensive software testing and deployment practices for disaster relief management systems.
+Developed by **Olebogeng Tabane**. The humanitarian use case was inspired by the work of Gift of the Givers; the project is not affiliated with or endorsed by the organisation.
