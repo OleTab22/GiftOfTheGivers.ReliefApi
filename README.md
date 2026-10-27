@@ -82,7 +82,17 @@ Collect coverage (where supported by the test environment):
 dotnet test Tests/GiftOfTheGivers.ReliefApi.Tests.csproj --collect:"XPlat Code Coverage"
 ```
 
-The source includes unit tests for controllers and token services, integration tests using ASP.NET Core test hosting, and other testing resources. Reports in [`Documentation/TestReports/`](Documentation/TestReports/) document earlier test exercises; **their pass rates and performance measurements should not be treated as current without rerunning the tests**.
+The source includes unit tests for controllers and token services, integration tests using ASP.NET Core test hosting, and other testing resources. Reports in [`Documentation/TestReports/`](Documentation/TestReports/) document earlier test exercises; current automated test verification is shown below.
+
+### Verified CI result — 27 October 2026
+
+- **.NET 8 Release build:** succeeded with 0 warnings and 0 errors
+- **Automated tests:** 80 passed, 0 failed, 0 skipped
+- **Coverage:** Cobertura output generated (coverage percentage not yet independently assessed)
+
+[View the successful GitHub Actions run](https://github.com/OleTab22/GiftOfTheGivers.ReliefApi/actions/runs/40485347436). The workflow is proposed separately in [PR #2](https://github.com/OleTab22/GiftOfTheGivers.ReliefApi/pull/2).
+
+The historical reports remain useful for understanding the test strategy, but performance/load figures should be independently reproduced before being cited as current results.
 
 PowerShell test scripts are available in [`LoadTests/`](LoadTests/). The [`azure-pipelines.yml`](azure-pipelines.yml) file describes pipeline automation; a configuration file alone is not proof of a successful deployment.
 
