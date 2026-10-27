@@ -1,0 +1,33 @@
+name: .NET API Build and Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore test project
+        run: dotnet restore Tests/GiftOfTheGivers.ReliefApi.Tests.csproj
+
+      - name: Build API
+        run: dotnet build GiftOfTheGivers.ReliefApi.csproj --configuration Release --no-restore
+
+      - name: Run automated tests with coverage
+        run: dotnet test Tests/GiftOfTheGivers.ReliefApi.Tests.csproj --configuration Release --no-restore --logger trx --collect "XPlat Code Coverage"
